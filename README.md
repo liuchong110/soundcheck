@@ -6,7 +6,10 @@
 
 ![soundcheck: 64/100 to 98/100 on a 15 second clip](docs/demo-ab.gif)
 
-[Watch it with sound (25 s, mp4)](docs/demo-ab.mp4) - same clip, unmastered vs soundcheck, level-matched.
+
+https://github.com/user-attachments/assets/dfad655d-6312-4777-bcbf-6c460b0c4f09
+
+
 
 
 
