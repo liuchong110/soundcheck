@@ -1,5 +1,7 @@
 # soundcheck
 
+English · [简体中文](README.zh-CN.md)
+
 **Your AI video sounds AI. Here are the 7 tells - and the fix.**
 
 `48/100 -> 100/100`, measured on a shipped test fixture, verified with an independent meter.
