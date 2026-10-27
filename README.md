@@ -4,7 +4,11 @@
 
 `48/100 -> 100/100`, measured on a shipped test fixture, verified with an independent meter.
 
-![before / after](docs/before_after.png)
+![soundcheck: 64/100 to 98/100 on a 15 second clip](docs/demo-ab.gif)
+
+[Watch it with sound (25 s, mp4)](docs/demo-ab.mp4) - same clip, unmastered vs soundcheck, level-matched.
+
+
 
 ```bash
 npx skills add liuchong110/soundcheck

@@ -4,3 +4,4 @@ __pycache__/
 *.pyc
 .venv/
 demo/*_raw/
+!docs/demo-ab.mp4
