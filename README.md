@@ -10,7 +10,7 @@
 npx skills add <you>/soundcheck     # replace <you> with your GitHub user
 python scripts/soundcheck.py fix clip.mp4 --target youtube   # video in, video out
 python scripts/soundcheck.py demo          # no assets needed
-python scripts/verify.py                   # 18/18 self-test
+python scripts/verify.py                   # 19/19 self-test
 ```
 
 ## The problem
@@ -94,7 +94,7 @@ Three levels, from cheapest to most convincing.
 
 ```bash
 python scripts/verify.py
-# 18/18 checks passed
+# 19/19 checks passed
 ```
 
 It covers: demo is a genuine worst case, our LUFS/true peak agree with ffmpeg, `fix` only exits 0

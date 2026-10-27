@@ -174,6 +174,22 @@ def main() -> int:
         except Exception as e:  # noqa: BLE001
             check("analyzes an mp4 (decode path)", False, repr(e))
 
+        # 7b. video in -> video out (the stream must survive, copied not re-encoded)
+        fp = shutil.which("ffprobe")
+        if fp:
+            try:
+                vout = tmp / "clip_fixed.mp4"
+                sc.main(["fix", str(mp4), "--target", "youtube", "--out", str(vout)])
+                p = run(fp, "-v", "error", "-show_entries", "stream=codec_type",
+                        "-of", "csv=p=0", str(vout))
+                kinds = p.stdout.strip().splitlines()
+                check("video in gives video out", "video" in kinds and "audio" in kinds,
+                      ",".join(kinds))
+            except Exception as e:  # noqa: BLE001
+                check("video in gives video out", False, repr(e))
+        else:
+            check("video in gives video out", True, "skipped: ffprobe missing")
+
         # 8. failure is loud, not silent
         p = run(sys.executable, str(HERE / "soundcheck.py"), "analyze", str(tmp / "nope.wav"))
         check("missing file fails loudly", p.returncode != 0 and "no such file" in (p.stdout + p.stderr).lower(),
