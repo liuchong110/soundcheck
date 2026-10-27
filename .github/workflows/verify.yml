@@ -16,5 +16,4 @@ jobs:
       - run: sudo apt-get update && sudo apt-get install -y ffmpeg
       - run: pip install numpy scipy
       - name: self-test
-        working-directory: soundcheck
         run: python scripts/verify.py
