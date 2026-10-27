@@ -131,6 +131,26 @@ def main() -> int:
         check("a gradual swell is not drift", sc.segment_drift(swell, sr_t) < 3.0,
               "%.1f dB" % sc.segment_drift(swell, sr_t))
 
+        # 5c. WAVE_FORMAT_EXTENSIBLE is what Linux ffmpeg writes for 24-bit PCM
+        try:
+            import struct as _struct
+            n = 2400
+            t = np.arange(n) / 48000.0
+            vals = (0.2 * np.sin(2 * np.pi * 440 * t) * ((1 << 23) - 1)).astype(np.int64)
+            pcm = b"".join((int(v) & 0xFFFFFF).to_bytes(3, "little") for v in vals)
+            guid = bytes([1, 0, 0, 0, 0, 0, 0x10, 0, 0x80, 0, 0, 0xAA, 0, 0x38, 0x9B, 0x71])
+            fmt = (_struct.pack("<HHIIHH", 0xFFFE, 1, 48000, 48000 * 3, 3, 24)
+                   + _struct.pack("<HHI", 22, 24, 4) + guid)
+            body = (b"WAVE" + b"fmt " + _struct.pack("<I", len(fmt)) + fmt
+                    + b"data" + _struct.pack("<I", len(pcm)) + pcm)
+            ext = tmp / "extensible.wav"
+            ext.write_bytes(b"RIFF" + _struct.pack("<I", len(body)) + body)
+            xe, sre = sc.load_audio(str(ext))
+            check("reads WAVE_FORMAT_EXTENSIBLE", sre == 48000 and xe.shape[1] == 1,
+                  "sr=%d ch=%d" % (sre, xe.shape[1]))
+        except Exception as e:  # noqa: BLE001
+            check("reads WAVE_FORMAT_EXTENSIBLE", False, repr(e))
+
         # 6. degenerate inputs must not crash
         cases = {
             "silence": ("-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo", "-t", "1"),

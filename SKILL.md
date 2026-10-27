@@ -35,7 +35,7 @@ you can decide.
 ## Verify before you trust it
 
 ```bash
-python scripts/verify.py        # 19 checks, exit 0 = all good
+python scripts/verify.py        # 20 checks, exit 0 = all good
 ```
 
 The suite checks that our meters agree with ffmpeg's `ebur128`, that `fix` exits 0 only when

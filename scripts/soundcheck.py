@@ -16,6 +16,7 @@ import json
 import math
 import os
 import shutil
+import struct
 import subprocess
 import sys
 import tempfile
@@ -46,11 +47,36 @@ TARGETS = {
 # ----------------------------------------------------------------------------- io
 
 def read_wav(path: str):
-    with wave.open(path, "rb") as w:
-        nch = w.getnchannels()
-        sw = w.getsampwidth()
-        sr = w.getframerate()
-        raw = w.readframes(w.getnframes())
+    """RIFF reader that also understands WAVE_FORMAT_EXTENSIBLE.
+
+    Python's stdlib wave module rejects extensible headers ("unknown format: 65534"),
+    which is what ffmpeg on Linux writes for 24-bit / multichannel PCM.
+    """
+    buf = Path(path).read_bytes()
+    if buf[:4] != b"RIFF" or buf[8:12] != b"WAVE":
+        raise ValueError("not a RIFF/WAVE file: %s" % path)
+    fmt = None
+    raw = None
+    pos = 12
+    while pos + 8 <= len(buf):
+        cid = buf[pos:pos + 4]
+        size = int.from_bytes(buf[pos + 4:pos + 8], "little")
+        body = buf[pos + 8:pos + 8 + size]
+        if cid == b"fmt ":
+            fmt = body
+        elif cid == b"data":
+            raw = body
+        pos += 8 + size + (size & 1)
+    if fmt is None or raw is None or len(fmt) < 16:
+        raise ValueError("incomplete RIFF file: %s" % path)
+
+    tag, nch, sr, _rate, _align, bits = struct.unpack("<HHIIHH", fmt[:16])
+    if tag == 0xFFFE and len(fmt) >= 26:          # extensible: real format in the GUID
+        tag = struct.unpack("<H", fmt[24:26])[0]
+    if tag != 1:                                   # 1 = integer PCM; 3 = float, unsupported here
+        raise ValueError("unsupported WAV format tag: %s" % tag)
+    sw = bits // 8
+
     if sw == 1:
         x = (np.frombuffer(raw, np.uint8).astype(np.float64) - 128.0) / 128.0
     elif sw == 2:
@@ -70,7 +96,10 @@ def read_wav(path: str):
 def load_audio(path: str):
     p = Path(path)
     if p.suffix.lower() == ".wav":
-        return read_wav(str(p))
+        try:
+            return read_wav(str(p))
+        except Exception:
+            pass  # float / exotic WAV: let ffmpeg normalise it below
     ff = shutil.which("ffmpeg")
     if not ff:
         raise SystemExit("need ffmpeg to decode %s (or convert to wav first)" % p.suffix)
