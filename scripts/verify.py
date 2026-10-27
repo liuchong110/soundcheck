@@ -30,6 +30,8 @@ results: list[tuple[str, bool, str]] = []
 def check(name, ok, detail=""):
     results.append((name, bool(ok), detail))
     print(("PASS  " if ok else "FAIL  ") + name + ("  -- " + detail if detail else ""))
+    if not ok and os.environ.get("GITHUB_ACTIONS"):
+        print("::error title=check failed: %s::%s" % (name, (detail or name)[:900]))
 
 
 def run(*args, **kw):
@@ -209,4 +211,14 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    try:
+        sys.exit(main())
+    except SystemExit:
+        raise
+    except Exception:
+        import traceback
+        tb = traceback.format_exc()
+        print(tb)
+        if os.environ.get("GITHUB_ACTIONS"):
+            print("::error title=verify crashed::" + tb.strip().splitlines()[-1][:900])
+        raise
