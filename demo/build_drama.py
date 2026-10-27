@@ -5,6 +5,8 @@ No third-party media: voices come from Windows SAPI (zh-CN), music is synthesise
 This is a stand-in for a 短剧/OTT delivery so the drama profile can be verified.
 """
 import json
+import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -15,8 +17,8 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent / "scripts"))
 import soundcheck as sc  # noqa: E402
 
-FF = r"C:\ffmpeg\bin\ffmpeg.exe"
-FP = r"C:\ffmpeg\bin\ffprobe.exe"
+FF = os.environ.get("FFMPEG") or shutil.which("ffmpeg") or r"C:\ffmpeg\bin\ffmpeg.exe"
+FP = os.environ.get("FFPROBE") or shutil.which("ffprobe") or r"C:\ffmpeg\bin\ffprobe.exe"
 
 
 def run(*a):
