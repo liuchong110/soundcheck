@@ -7,7 +7,7 @@
 ![before / after](docs/before_after.png)
 
 ```bash
-npx skills add <you>/soundcheck     # replace <you> with your GitHub user
+npx skills add liuchong110/soundcheck
 python scripts/soundcheck.py fix clip.mp4 --target youtube   # video in, video out
 python scripts/soundcheck.py demo          # no assets needed
 python scripts/verify.py                   # 19/19 self-test
